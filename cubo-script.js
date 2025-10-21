@@ -6,6 +6,9 @@ let scene, camera, renderer, cube, hypercube, controls;
 let currentMode = '3d';
 let isRotating = true;
 let raycaster, mouse;
+let audioContext;
+let audioElement;
+let isMusicPlaying = false;
 
 const faceToRoom = {
     0: { name: 'Zona de Infraestructura', url: 'habitacion-1.html', desc: 'Capa Superficie/Media' },
@@ -385,9 +388,36 @@ if (document.readyState === 'loading') {
     init();
 }
 
+function toggleMusic() {
+    const btn = document.getElementById('musicBtn');
+    
+    if (!audioElement) {
+        // Crear elemento de audio la primera vez
+        audioElement = new Audio();
+        // Aquí pon la URL de tu música (puede ser de tu repositorio o un CDN)
+        audioElement.src = 'musica-fondo.mp3'; // Cambia esto por tu archivo
+        audioElement.loop = true;
+        audioElement.volume = 0.3; // Volumen al 30%
+    }
+    
+    if (isMusicPlaying) {
+        audioElement.pause();
+        btn.textContent = '🔇 Música';
+        isMusicPlaying = false;
+    } else {
+        audioElement.play().catch(err => {
+            console.log('Error al reproducir música:', err);
+        });
+        btn.textContent = '🔊 Música';
+        isMusicPlaying = true;
+    }
+}
+
 // Exponer funciones globalmente para los botones
 window.setCubeMode = setCubeMode;
 window.toggleRotation = toggleRotation;
+window.toggleMusic = toggleMusic;
+
 
 
 
