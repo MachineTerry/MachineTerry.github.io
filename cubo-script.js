@@ -3,6 +3,7 @@ let scene, camera, renderer, cube, hypercube;
 let currentMode = '3d';
 let isRotating = true;
 let raycaster, mouse;
+let controls;
 
 const faceToRoom = {
     0: { name: 'Zona de Infraestructura', url: 'habitacion-1.html', desc: 'Capa Superficie/Media' },
@@ -42,6 +43,13 @@ function init() {
     
     renderer.domElement.addEventListener('click', onCubeClick);
     renderer.domElement.addEventListener('mousemove', onMouseMove);
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.enablePan = false;
+    controls.enableZoom = false;
+    controls.enabled = false; // desactivado por defecto
+
     
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambientLight);
@@ -223,13 +231,13 @@ function setCubeMode(mode) {
 function toggleRotation() {
     isRotating = !isRotating;
     const btn = document.getElementById('pauseBtn');
-    if (btn) {
-        btn.textContent = isRotating ? '⏸️ Pausar' : '▶️ Reanudar';
-    }
+    if (btn) btn.textContent = isRotating ? '⏸️ Pausar' : '▶️ Reanudar';
+    controls.enabled = !isRotating; // permitir rotación manual al pausar
 }
 
 function animate() {
     requestAnimationFrame(animate);
+
     if (isRotating) {
         if (cube) {
             cube.rotation.x += 0.005;
@@ -240,9 +248,13 @@ function animate() {
             hypercube.rotation.y += 0.005;
             hypercube.rotation.z += 0.002;
         }
+    } else {
+        controls.update(); // permite rotación manual
     }
+
     renderer.render(scene, camera);
 }
+
 
 function onWindowResize() {
     const container = document.getElementById('canvas-container');
@@ -257,4 +269,5 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
     init();
+
 }
