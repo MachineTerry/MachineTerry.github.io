@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dimensión de Morgana</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <h1>🜂 Dimensión de Morgana</h1>
+            <p class="intro">Un espacio entre dimensiones donde la realidad se fragmenta y lo imposible toma forma.</p>
+        </header>
+
+        <!-- CUBO INTERACTIVO -->
+        <div class="cube-section">
+            <h2>Explora el Cubo</h2>
+            <p class="cube-instruction">Haz click en cualquier cara del cubo para descubrir las zonas de la dimensión</p>
+            
+            <div class="controls">
+                <button onclick="setCubeMode('3d')" class="active" id="btn3d">Cubo 3D</button>
+                <button onclick="setCubeMode('4d')" id="btn4d">Hipercubo 4D</button>
+                <button onclick="toggleRotation()" id="pauseBtn">⏸️ Pausar</button>
+            </div>
+
+            <div id="canvas-container"></div>
+
+            <div class="selected-room" id="selected-room-panel">
+                <h3>📍 Zona Seleccionada</h3>
+                <p id="room-name"></p>
+                <a href="#" id="view-room-link" class="view-room-btn">→ Explorar esta zona</a>
+            </div>
+        </div>
+
+        <!-- SOBRE LA DIMENSIÓN -->
+        <div class="about-section">
+            <h2>Sobre la Dimensión</h2>
+            <p>
+                La Dimensión de Morgana es un espacio místico y enigmático que existe más allá de nuestra 
+                realidad conocida. Es un lugar donde las leyes de la física se doblan, el tiempo fluye de 
+                manera diferente y la magia es tan natural como respirar.
+            </p>
+            
+            <h3>Características principales</h3>
+            <ul>
+                <li>El tiempo funciona de manera no lineal</li>
+                <li>La magia es parte fundamental del ecosistema</li>
+                <li>Existen múltiples habitaciones o espacios conectados</li>
+                <li>Cada habitación tiene sus propias reglas y propiedades</li>
+            </ul>
+        </div>
+
+        <!-- TIPOS DE HABITACIONES -->
+        <div class="structure-section">
+            <h2>📍 Tipos de Zonas</h2>
+
+            <div class="rooms-grid">
+                <div class="room-card copy">
+                    <div class="room-type copy">COPIA EXACTA</div>
+                    <div class="room-name">Mundo Real Replicado</div>
+                    <div class="room-info">
+                        <strong>Ejemplos:</strong> Yokohama, edificios, casas<br>
+                        <strong>Geometría:</strong> Normal, copias exactas<br>
+                        <strong>Trampa:</strong> Se reconfiguran<br>
+                        <strong>Peligro:</strong> Bajo-moderado
+                    </div>
+                </div>
+
+                <div class="room-card antinature">
+                    <div class="room-type antinature">ANTINATURA</div>
+                    <div class="room-name">Zonas de Física Violada</div>
+                    <div class="room-info">
+                        <strong>Características:</strong> Gravedad arbitraria<br>
+                        <strong>Geometría:</strong> Deconstructiva<br>
+                        <strong>Visibilidad:</strong> Claramente incorrecta<br>
+                        <strong>Peligro:</strong> Alto
+                    </div>
+                </div>
+
+                <div class="room-card protected">
+                    <div class="room-type protected">PROTEGIDAS</div>
+                    <div class="room-name">Zonas Luna/Sol</div>
+                    <div class="room-info">
+                        <strong>Ubicación:</strong> Aleatoria<br>
+                        <strong>Geometría:</strong> Estable<br>
+                        <strong>Seres:</strong> Guardianes Íricos<br>
+                        <strong>Puertas:</strong> Eficiencia máxima
+                    </div>
+                </div>
+
+                <div class="room-card antinature">
+                    <div class="room-type antinature">GRIETAS</div>
+                    <div class="room-name">Puntos Débiles</div>
+                    <div class="room-info">
+                        <strong>Origen:</strong> Destrucción dimensional<br>
+                        <strong>Conexión:</strong> Directa al Tártaro<br>
+                        <strong>Espectros:</strong> Alta probabilidad<br>
+                        <strong>Peligro:</strong> Moderado-alto
+                    </div>
+                </div>
+
+                <div class="room-card">
+                    <div class="room-type">INTERSECCIÓN</div>
+                    <div class="room-name">Puntos de Transición</div>
+                    <div class="room-info">
+                        <strong>Función:</strong> Conectan niveles<br>
+                        <strong>Características:</strong> Geometría liminal<br>
+                        <strong>Duración:</strong> Variable<br>
+                        <strong>Acceso:</strong> Ventanas y puertas
+                    </div>
+                </div>
+
+                <div class="room-card protected">
+                    <div class="room-type protected">CRISTALIZADA</div>
+                    <div class="room-name">Puerta Permanente</div>
+                    <div class="room-info">
+                        <strong>Creada por:</strong> Organizaciones<br>
+                        <strong>Estabilidad:</strong> Permanente<br>
+                        <strong>Singularidad:</strong> 10 min<br>
+                        <strong>Uso:</strong> Indefinido
+                    </div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item copy">
+                    <div class="legend-color" style="background: #8BAE8C;"></div>
+                    <span>Copias Exactas</span>
+                </div>
+                <div class="legend-item antinature">
+                    <div class="legend-color" style="background: #8E7FAF;"></div>
+                    <span>Zonas Antinatura</span>
+                </div>
+                <div class="legend-item protected">
+                    <div class="legend-color" style="background: #A6B59A;"></div>
+                    <span>Protegidas/Cristalizadas</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRASLACIÓN -->
+        <div class="translation-demo">
+            <h2>⚡ Proceso de Traslación Geométrica</h2>
+
+            <div class="timeline">
+                <div class="timeline-step">
+                    <div class="timeline-number">1</div>
+                    <div class="timeline-content">
+                        <h3>Estado Estable</h3>
+                        <p>Puerta conecta Habitación A ↔ Habitación B. Métrica definida. Seguro cruzar.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-number">2</div>
+                    <div class="timeline-content">
+                        <h3>Reconfiguración Comienza</h3>
+                        <p>Cubo comienza a rotarse. Geometría se reestructura. Puertas se cierran gradualmente.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-number">3</div>
+                    <div class="timeline-content">
+                        <h3>Punto Crítico</h3>
+                        <p>Puerta indefinida. MÁXIMO PELIGRO. Cruzar = atrapamiento.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-number">4</div>
+                    <div class="timeline-content">
+                        <h3>Reconfiguración Completa</h3>
+                        <p>Nueva geometría estable. Puerta reabre en NUEVA configuración.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-number">5</div>
+                    <div class="timeline-content">
+                        <h3>Ciclo se Repite</h3>
+                        <p>Período comienza de nuevo. Tiempo según nivel (10min-3seg).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARACTERÍSTICAS CLAVE -->
+        <div class="structure-section">
+            <h2>🔑 Características Clave de Morgana</h2>
+
+            <div class="features-section">
+                <div class="feature-box">
+                    <h3>🔄 Reconfiguraciones</h3>
+                    <p>El cubo rota sus "caras" cambiando de posición. Lo que era "izquierda" ahora es "arriba".</p>
+                </div>
+
+                <div class="feature-box">
+                    <h3>🎭 Trampa Psicológica</h3>
+                    <p>Copias exactas del mundo real engañan. Provocan desorientación al repetir zonas.</p>
+                </div>
+
+                <div class="feature-box">
+                    <h3>⏰ Ventanas Críticas</h3>
+                    <p>Nivel 1: 8 min seguros. Nivel 10: 2 seg seguros. A mayor profundidad, menor tiempo.</p>
+                </div>
+
+                <div class="feature-box">
+                    <h3>🌀 No hay "Exterior"</h3>
+                    <p>No existe "afuera del cubo" habitable. Salir durante reconfiguración = muerte rápida.</p>
+                </div>
+
+                <div class="feature-box">
+                    <h3>🔗 Interconexiones</h3>
+                    <p>Cada habitación conecta vía puertas interdimensionales. Topología no-euclidiana.</p>
+                </div>
+
+                <div class="feature-box">
+                    <h3>💀 Espectros Atraídos</h3>
+                    <p>Las grietas atraen espectros por el exceso de energía ánima.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="cubo-script.js"></script>
+</body>
+</html>
