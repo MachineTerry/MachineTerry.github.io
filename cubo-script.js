@@ -1,4 +1,7 @@
 // cubo-script.js - JavaScript del Cubo de Morgana con controles
+// Importar OrbitControls desde el CDN correcto
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+
 let scene, camera, renderer, cube, hypercube, controls;
 let currentMode = '3d';
 let isRotating = true;
@@ -53,8 +56,8 @@ function init() {
     container.appendChild(renderer.domElement);
     
     // Controles de órbita (opcional, funciona sin ellos)
-    if (typeof THREE.OrbitControls !== 'undefined') {
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
+    if (typeof OrbitControls !== 'undefined') {
+        controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.enableZoom = true;
@@ -376,6 +379,7 @@ if (document.readyState === 'loading') {
 // Exponer funciones globalmente para los botones
 window.setCubeMode = setCubeMode;
 window.toggleRotation = toggleRotation;
+
 
 
 
