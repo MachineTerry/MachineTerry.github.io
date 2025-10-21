@@ -93,17 +93,17 @@ function init() {
     
     // Iniciar animación
     animate();
-}
 
-// Ocultar pantalla de carga
-setTimeout(() => {
+    // Ocultar pantalla de carga
+    setTimeout(() => {
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
         loadingScreen.style.opacity = '0';
         loadingScreen.style.transition = 'opacity 0.5s';
         setTimeout(() => loadingScreen.remove(), 500);
     }
-}, 100);
+    }, 100);
+}
 
 function create3DCube() {
     if (cube) scene.remove(cube);
@@ -262,8 +262,17 @@ function onCubeClick(event) {
     if (currentMode !== '3d' || !cube) return;
     
     const rect = renderer.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    
+    // Detectar si es touch o click
+    if (event.type === 'touchend') {
+        if (event.changedTouches.length === 0) return;
+        const touch = event.changedTouches[0];
+        mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+    } else {
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    }
     
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObject(cube);
@@ -273,7 +282,6 @@ function onCubeClick(event) {
         selectRoom(faceIndex);
     }
 }
-
 function selectRoom(faceIndex) {
     const room = faceToRoom[faceIndex];
     if (!room) return;
@@ -380,6 +388,7 @@ if (document.readyState === 'loading') {
 // Exponer funciones globalmente para los botones
 window.setCubeMode = setCubeMode;
 window.toggleRotation = toggleRotation;
+
 
 
 
