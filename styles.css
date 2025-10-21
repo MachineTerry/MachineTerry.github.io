@@ -103,6 +103,14 @@ button.active {
     box-shadow: 0 0 20px rgba(156, 139, 167, 0.7);
 }
 
+#musicBtn {
+    transition: all 0.3s;
+}
+
+#musicBtn:hover {
+    transform: scale(1.05);
+}
+
 /* === CANVAS DEL CUBO === */
 #canvas-container {
     width: 100%;
@@ -513,4 +521,5 @@ button.active {
         flex-direction: column;
         align-items: stretch;
     }
+
 }
