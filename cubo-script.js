@@ -227,10 +227,10 @@ function createParticles() {
     
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
     const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.03,
+        size: 0.01,
         color: 0x6A8BA8,
         transparent: true,
-        opacity: 0.6
+        opacity: 0.3
     });
     
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
@@ -372,6 +372,7 @@ if (document.readyState === 'loading') {
 // Exponer funciones globalmente para los botones
 window.setCubeMode = setCubeMode;
 window.toggleRotation = toggleRotation;
+
 
 
 
