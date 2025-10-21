@@ -66,9 +66,11 @@ function init() {
         controls.autoRotate = false;
         console.log('OrbitControls loaded successfully');
     
-    // Event listeners
+   // Event listeners para desktop y móvil
     renderer.domElement.addEventListener('click', onCubeClick, false);
+    renderer.domElement.addEventListener('touchend', onCubeClick, false);
     renderer.domElement.addEventListener('mousemove', onMouseMove, false);
+    renderer.domElement.addEventListener('touchstart', onTouchStart, false);
     
     // Luces
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -250,6 +252,18 @@ function onMouseMove(event) {
     renderer.domElement.style.cursor = intersects.length > 0 ? 'pointer' : 'grab';
 }
 
+function onTouchStart(event) {
+    if (currentMode !== '3d' || !cube) return;
+    
+    event.preventDefault();
+    
+    const touch = event.touches[0];
+    const rect = renderer.domElement.getBoundingClientRect();
+    
+    mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+}
+
 function onCubeClick(event) {
     if (currentMode !== '3d' || !cube) return;
     
@@ -372,6 +386,7 @@ if (document.readyState === 'loading') {
 // Exponer funciones globalmente para los botones
 window.setCubeMode = setCubeMode;
 window.toggleRotation = toggleRotation;
+
 
 
 
