@@ -44,7 +44,9 @@ function init() {
     renderer.domElement.addEventListener('click', onCubeClick);
     renderer.domElement.addEventListener('mousemove', onMouseMove);
 
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.132.0/examples/js/controls/OrbitControls.js';
+    const controls = new OrbitControls(camera, renderer.domElement);
+
     controls.enableDamping = true;
     controls.enablePan = false;
     controls.enableZoom = false;
@@ -271,5 +273,6 @@ if (document.readyState === 'loading') {
     init();
 
 }
+
 
 
