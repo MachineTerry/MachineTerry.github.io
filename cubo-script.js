@@ -55,8 +55,7 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
     
-    // Controles de órbita (opcional, funciona sin ellos)
-    if (typeof OrbitControls !== 'undefined') {
+    // Controles de órbita
         controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
@@ -66,10 +65,6 @@ function init() {
         controls.maxDistance = 10;
         controls.autoRotate = false;
         console.log('OrbitControls loaded successfully');
-    } else {
-        console.log('Running without OrbitControls (basic mode)');
-        controls = null;
-    }
     
     // Event listeners
     renderer.domElement.addEventListener('click', onCubeClick, false);
@@ -353,9 +348,7 @@ function animate() {
     }
     
     // Actualizar controles si existen
-    if (controls) {
-        controls.update();
-    }
+    controls.update();
     
     renderer.render(scene, camera);
 }
@@ -379,6 +372,7 @@ if (document.readyState === 'loading') {
 // Exponer funciones globalmente para los botones
 window.setCubeMode = setCubeMode;
 window.toggleRotation = toggleRotation;
+
 
 
 
