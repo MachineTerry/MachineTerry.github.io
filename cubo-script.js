@@ -395,7 +395,7 @@ function toggleMusic() {
         // Crear elemento de audio la primera vez
         audioElement = new Audio();
         // Aquí pon la URL de tu música (puede ser de tu repositorio o un CDN)
-        audioElement.src = 'ost_disorient.mp3'; // Cambia esto por tu archivo
+        audioElement.src = 'still.mp3'; // Cambia esto por tu archivo
         audioElement.loop = true;
         audioElement.volume = 0.3; // Volumen al 30%
     }
@@ -417,6 +417,7 @@ function toggleMusic() {
 window.setCubeMode = setCubeMode;
 window.toggleRotation = toggleRotation;
 window.toggleMusic = toggleMusic;
+
 
 
 
