@@ -84,10 +84,6 @@ function init() {
     pointLight2.position.set(-5, -5, 5);
     scene.add(pointLight2);
     
-    const pointLight3 = new THREE.PointLight(0x8BAE8C, 0.8, 100);
-    pointLight3.position.set(0, -5, -5);
-    scene.add(pointLight3);
-    
     // Crear cubo inicial
     create3DCube();
     createParticles();
@@ -99,53 +95,51 @@ function init() {
     animate();
 }
 
+// Ocultar pantalla de carga
+setTimeout(() => {
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+        loadingScreen.style.opacity = '0';
+        loadingScreen.style.transition = 'opacity 0.5s';
+        setTimeout(() => loadingScreen.remove(), 500);
+    }
+}, 100);
+
 function create3DCube() {
     if (cube) scene.remove(cube);
     
     const geometry = new THREE.BoxGeometry(2, 2, 2);
     const materials = [
-        new THREE.MeshPhongMaterial({ 
-            color: colors.superficie, 
-            emissive: colors.superficie, 
-            emissiveIntensity: 0.2, 
-            shininess: 100,
-            transparent: false
-        }),
-        new THREE.MeshPhongMaterial({ 
-            color: colors.media, 
-            emissive: colors.media, 
-            emissiveIntensity: 0.2, 
-            shininess: 100,
-            transparent: false
-        }),
-        new THREE.MeshPhongMaterial({ 
-            color: colors.profunda, 
-            emissive: colors.profunda, 
-            emissiveIntensity: 0.2, 
-            shininess: 100,
-            transparent: false
-        }),
-        new THREE.MeshPhongMaterial({ 
-            color: colors.tartaro, 
-            emissive: colors.tartaro, 
-            emissiveIntensity: 0.3, 
-            shininess: 100,
-            transparent: false
-        }),
-        new THREE.MeshPhongMaterial({ 
-            color: colors.protegida, 
-            emissive: colors.protegida, 
-            emissiveIntensity: 0.2, 
-            shininess: 100,
-            transparent: false
-        }),
-        new THREE.MeshPhongMaterial({ 
-            color: colors.base, 
-            emissive: colors.base, 
-            emissiveIntensity: 0.2, 
-            shininess: 100,
-            transparent: false
-        })
+    new THREE.MeshLambertMaterial({ 
+        color: colors.superficie, 
+        emissive: colors.superficie, 
+        emissiveIntensity: 0.2
+    }),
+    new THREE.MeshLambertMaterial({ 
+        color: colors.media, 
+        emissive: colors.media, 
+        emissiveIntensity: 0.2
+    }),
+    new THREE.MeshLambertMaterial({ 
+        color: colors.profunda, 
+        emissive: colors.profunda, 
+        emissiveIntensity: 0.2
+    }),
+    new THREE.MeshLambertMaterial({ 
+        color: colors.tartaro, 
+        emissive: colors.tartaro, 
+        emissiveIntensity: 0.3
+    }),
+    new THREE.MeshLambertMaterial({ 
+        color: colors.protegida, 
+        emissive: colors.protegida, 
+        emissiveIntensity: 0.2
+    }),
+    new THREE.MeshLambertMaterial({ 
+        color: colors.base, 
+        emissive: colors.base, 
+        emissiveIntensity: 0.2
+    })
     ];
     
     cube = new THREE.Mesh(geometry, materials);
@@ -220,7 +214,7 @@ function create4DHypercube() {
 
 function createParticles() {
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCnt = 1000;
+    const particlesCnt = 300;
     const posArray = new Float32Array(particlesCnt * 3);
     
     for(let i = 0; i < particlesCnt * 3; i++) {
@@ -386,6 +380,7 @@ if (document.readyState === 'loading') {
 // Exponer funciones globalmente para los botones
 window.setCubeMode = setCubeMode;
 window.toggleRotation = toggleRotation;
+
 
 
 
