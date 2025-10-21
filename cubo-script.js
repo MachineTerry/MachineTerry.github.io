@@ -10,7 +10,7 @@ const faceToRoom = {
     2: { name: 'Zona Antinatura', url: 'habitacion-3.html', desc: 'Capa Profunda' },
     3: { name: 'Frontera del Tártaro', url: 'habitacion-4.html', desc: 'Tártaro' },
     4: { name: 'Zona Protegida', url: 'habitacion-5.html', desc: 'Zona Protegida' },
-    5: { name: 'Entrada - Habitación 0', url: 'habitacion-0.html', desc: 'Superficie' }
+    5: { name: 'Entrada - Zona 0', url: 'habitacion-0.html', desc: 'Superficie' }
 };
 
 const colors = {
@@ -376,6 +376,7 @@ if (document.readyState === 'loading') {
 // Exponer funciones globalmente para los botones
 window.setCubeMode = setCubeMode;
 window.toggleRotation = toggleRotation;
+
 
 
 
