@@ -48,7 +48,7 @@ function init() {
     controls.enableDamping = true;
     controls.enablePan = false;
     controls.enableZoom = false;
-    controls.enabled = false; // desactivado por defecto
+    controls.enabled = true; // desactivado por defecto
 
     
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
@@ -271,3 +271,4 @@ if (document.readyState === 'loading') {
     init();
 
 }
+
