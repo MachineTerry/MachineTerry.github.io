@@ -248,13 +248,13 @@ function animate() {
             hypercube.rotation.y += 0.005;
             hypercube.rotation.z += 0.002;
         }
-    } else {
-        controls.update(); // permite rotación manual
     }
+
+    // Siempre actualizar controles, así damping funciona incluso si no está pausado
+    if (controls) controls.update();
 
     renderer.render(scene, camera);
 }
-
 
 function onWindowResize() {
     const container = document.getElementById('canvas-container');
@@ -271,4 +271,5 @@ if (document.readyState === 'loading') {
     init();
 
 }
+
 
