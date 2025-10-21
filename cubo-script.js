@@ -2,31 +2,68 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/OrbitControls.js';
 
-let scene, camera, renderer, cube, hypercube, controls;
-let currentMode = '3d';
-let isRotating = true;
+let scene, camera, renderer, hypercube, controls;
 let raycaster, mouse;
-let audioContext;
+let hoveredFace = null;
+let innerCube;
+let isOverCenter = false;
+
+// Configuración de zonas con colores específicos
+const zones = {
+    0: { 
+        name: 'Entrada - Zona 0', 
+        url: 'habitacion-0.html', 
+        desc: 'Copia de la Ciudad',
+        color: 0x6B8E23, // Verde bosque/planta
+        emissive: 0x556B2F
+    },
+    1: { 
+        name: 'Zona Residencial', 
+        url: 'habitacion-2.html', 
+        desc: 'Capa Media',
+        color: 0x4169E1, // Azul
+        emissive: 0x1E3A8A
+    },
+    2: { 
+        name: 'Zona Antinatura', 
+        url: 'habitacion-3.html', 
+        desc: 'Capa Profunda',
+        color: 0x8B008B, // Magenta/Morado oscuro
+        emissive: 0x4B0082
+    },
+    3: { 
+        name: 'Zona Protegida', 
+        url: 'habitacion-5.html', 
+        desc: 'Zona Protegida',
+        color: 0xFFFF99, // Amarillo clarito
+        emissive: 0xFFD700
+    },
+    4: { 
+        name: 'Zona de Infraestructura', 
+        url: 'habitacion-1.html', 
+        desc: 'Capa Superficie/Media',
+        color: 0x00CED1, // Cyan/Gris azulado
+        emissive: 0x008B8B
+    },
+    5: { 
+        name: 'Frontera del Tártaro', 
+        url: 'habitacion-4.html', 
+        desc: 'Frontera',
+        color: 0x8B0A50, // Rojo tirando a morado
+        emissive: 0x4B0026
+    },
+    tartaro: {
+        name: 'El Tártaro - Abismo',
+        url: 'habitacion-tartaro.html',
+        desc: 'Centro de la Dimensión',
+        color: 0x1A0000,
+        emissive: 0x8B0000
+    }
+};
+
+// Variables de audio
 let audioElement;
 let isMusicPlaying = false;
-
-const faceToRoom = {
-    0: { name: 'Zona de Infraestructura', url: 'habitacion-1.html', desc: 'Capa Superficie/Media' },
-    1: { name: 'Zona Residencial', url: 'habitacion-2.html', desc: 'Capa Media' },
-    2: { name: 'Zona Antinatura', url: 'habitacion-3.html', desc: 'Capa Profunda' },
-    3: { name: 'Frontera del Tártaro', url: 'habitacion-4.html', desc: 'Tártaro' },
-    4: { name: 'Zona Protegida', url: 'habitacion-5.html', desc: 'Zona Protegida' },
-    5: { name: 'Entrada - Zona 0', url: 'habitacion-0.html', desc: 'Superficie' }
-};
-
-const colors = {
-    superficie: 0x9EB3C2,
-    media: 0xA796C9,
-    profunda: 0x8E7FAF,
-    tartaro: 0x56C1D3,
-    protegida: 0xA6B59A,
-    base: 0x6A8BA8
-};
 
 function init() {
     const container = document.getElementById('canvas-container');
@@ -50,7 +87,7 @@ function init() {
         0.1,
         1000
     );
-    camera.position.z = 5;
+    camera.position.set(4, 4, 4);
     
     // Renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -58,160 +95,127 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
     
-    // Controles de órbita
-        controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.enableZoom = true;
-        controls.enablePan = false;
-        controls.minDistance = 3;
-        controls.maxDistance = 10;
-        controls.autoRotate = false;
-        console.log('OrbitControls loaded successfully');
+    // Controles
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enableZoom = true;
+    controls.enablePan = false;
+    controls.minDistance = 3;
+    controls.maxDistance = 12;
     
-   // Event listeners para desktop y móvil
-    renderer.domElement.addEventListener('click', onCubeClick, false);
-    renderer.domElement.addEventListener('touchend', onCubeClick, false);
+    // Event listeners
+    renderer.domElement.addEventListener('click', onHypercubeClick, false);
     renderer.domElement.addEventListener('mousemove', onMouseMove, false);
-    renderer.domElement.addEventListener('touchstart', onTouchStart, false);
+    window.addEventListener('keydown', onKeyDown, false);
+    window.addEventListener('resize', onWindowResize, false);
     
     // Luces
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambientLight);
     
-    const pointLight1 = new THREE.PointLight(0x9C8BA7, 1.2, 100);
+    const pointLight1 = new THREE.PointLight(0x9C8BA7, 1, 100);
     pointLight1.position.set(5, 5, 5);
     scene.add(pointLight1);
     
-    const pointLight2 = new THREE.PointLight(0x56C1D3, 1, 100);
+    const pointLight2 = new THREE.PointLight(0x56C1D3, 0.8, 100);
     pointLight2.position.set(-5, -5, 5);
     scene.add(pointLight2);
     
-    // Crear cubo inicial
-    create3DCube();
+    // Crear hipercubo
+    createHypercube();
     createParticles();
-    
-    // Event listeners
-    window.addEventListener('resize', onWindowResize, false);
     
     // Iniciar animación
     animate();
-
-    // Ocultar pantalla de carga
+    
+    // Ocultar loading
     setTimeout(() => {
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-        loadingScreen.style.opacity = '0';
-        loadingScreen.style.transition = 'opacity 0.5s';
-        setTimeout(() => loadingScreen.remove(), 500);
-    }
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.transition = 'opacity 0.5s';
+            setTimeout(() => loadingScreen.remove(), 500);
+        }
     }, 100);
 }
 
-function create3DCube() {
-    if (cube) scene.remove(cube);
-    
-    const geometry = new THREE.BoxGeometry(2, 2, 2);
-    const materials = [
-    new THREE.MeshLambertMaterial({ 
-        color: colors.superficie, 
-        emissive: colors.superficie, 
-        emissiveIntensity: 0.2
-    }),
-    new THREE.MeshLambertMaterial({ 
-        color: colors.media, 
-        emissive: colors.media, 
-        emissiveIntensity: 0.2
-    }),
-    new THREE.MeshLambertMaterial({ 
-        color: colors.profunda, 
-        emissive: colors.profunda, 
-        emissiveIntensity: 0.2
-    }),
-    new THREE.MeshLambertMaterial({ 
-        color: colors.tartaro, 
-        emissive: colors.tartaro, 
-        emissiveIntensity: 0.3
-    }),
-    new THREE.MeshLambertMaterial({ 
-        color: colors.protegida, 
-        emissive: colors.protegida, 
-        emissiveIntensity: 0.2
-    }),
-    new THREE.MeshLambertMaterial({ 
-        color: colors.base, 
-        emissive: colors.base, 
-        emissiveIntensity: 0.2
-    })
-    ];
-    
-    cube = new THREE.Mesh(geometry, materials);
-    cube.name = 'mainCube'; // Nombre para identificarlo
-    scene.add(cube);
-    
-    // Wireframe
-    const edges = new THREE.EdgesGeometry(geometry);
-    const line = new THREE.LineSegments(
-        edges, 
-        new THREE.LineBasicMaterial({ color: 0x9C8BA7, linewidth: 2 })
-    );
-    cube.add(line);
-}
-
-function create4DHypercube() {
-    if (hypercube) scene.remove(hypercube);
+function createHypercube() {
     hypercube = new THREE.Group();
     hypercube.name = 'hypercube';
     
-    const w = 0.7;
-    const vertices = [
-        [-1,-1,-1,-w],[1,-1,-1,-w],[1,1,-1,-w],[-1,1,-1,-w],
-        [-1,-1,1,-w],[1,-1,1,-w],[1,1,1,-w],[-1,1,1,-w],
-        [-1,-1,-1,w],[1,-1,-1,w],[1,1,-1,w],[-1,1,-1,w],
-        [-1,-1,1,w],[1,-1,1,w],[1,1,1,w],[-1,1,1,w]
+    // Crear 6 caras como planos transparentes con colores
+    const size = 2;
+    const positions = [
+        { pos: [size, 0, 0], rot: [0, Math.PI/2, 0], zone: 4 },  // Derecha - Infraestructura
+        { pos: [-size, 0, 0], rot: [0, -Math.PI/2, 0], zone: 1 }, // Izquierda - Residencial
+        { pos: [0, size, 0], rot: [-Math.PI/2, 0, 0], zone: 3 },  // Arriba - Protegida
+        { pos: [0, -size, 0], rot: [Math.PI/2, 0, 0], zone: 5 },  // Abajo - Frontera Tártaro
+        { pos: [0, 0, size], rot: [0, 0, 0], zone: 0 },           // Frente - Zona 0
+        { pos: [0, 0, -size], rot: [0, Math.PI, 0], zone: 2 }     // Atrás - Antinatura
     ];
     
-    const projected = vertices.map(v => {
-        const scale = 3 / (3 - v[3]);
-        return new THREE.Vector3(v[0]*scale, v[1]*scale, v[2]*scale);
+    positions.forEach((config, index) => {
+        const geometry = new THREE.PlaneGeometry(size * 1.8, size * 1.8);
+        const material = new THREE.MeshStandardMaterial({
+            color: zones[config.zone].color,
+            emissive: zones[config.zone].emissive,
+            emissiveIntensity: 0.2,
+            transparent: true,
+            opacity: 0.3,
+            side: THREE.DoubleSide,
+            roughness: 0.5,
+            metalness: 0.3
+        });
+        
+        const plane = new THREE.Mesh(geometry, material);
+        plane.position.set(...config.pos);
+        plane.rotation.set(...config.rot);
+        plane.userData = { 
+            zoneIndex: config.zone,
+            originalOpacity: 0.3,
+            originalEmissive: 0.2
+        };
+        
+        hypercube.add(plane);
+        
+        // Añadir borde a cada cara
+        const edges = new THREE.EdgesGeometry(geometry);
+        const line = new THREE.LineSegments(
+            edges,
+            new THREE.LineBasicMaterial({ 
+                color: zones[config.zone].emissive,
+                transparent: true,
+                opacity: 0.6
+            })
+        );
+        plane.add(line);
     });
     
-    // Vértices
-    const sphereGeometry = new THREE.SphereGeometry(0.08, 16, 16);
-    const sphereMaterial = new THREE.MeshPhongMaterial({ 
-        color: colors.tartaro, 
-        emissive: colors.tartaro, 
-        emissiveIntensity: 0.6 
+    // Crear cubo interno (Tártaro) - más pequeño y transparente
+    const innerGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const innerMaterial = new THREE.MeshStandardMaterial({
+        color: zones.tartaro.color,
+        emissive: zones.tartaro.emissive,
+        emissiveIntensity: 0.5,
+        transparent: true,
+        opacity: 0.4,
+        roughness: 0.3,
+        metalness: 0.7
     });
     
-    projected.forEach(v => {
-        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        sphere.position.copy(v);
-        hypercube.add(sphere);
-    });
+    innerCube = new THREE.Mesh(innerGeometry, innerMaterial);
+    innerCube.userData = { isTartaro: true };
     
-    // Aristas
-    const edges = [
-        [0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7],
-        [8,9],[9,10],[10,11],[11,8],[12,13],[13,14],[14,15],[15,12],[8,12],[9,13],[10,14],[11,15],
-        [0,8],[1,9],[2,10],[3,11],[4,12],[5,13],[6,14],[7,15]
-    ];
+    // Añadir borde al cubo interno
+    const innerEdges = new THREE.EdgesGeometry(innerGeometry);
+    const innerLine = new THREE.LineSegments(
+        innerEdges,
+        new THREE.LineBasicMaterial({ color: 0xFF0000, opacity: 0.8, transparent: true })
+    );
+    innerCube.add(innerLine);
     
-    const lineMaterial = new THREE.LineBasicMaterial({ 
-        color: 0x9C8BA7, 
-        opacity: 0.7, 
-        transparent: true 
-    });
-    
-    edges.forEach(edge => {
-        const geometry = new THREE.BufferGeometry().setFromPoints([
-            projected[edge[0]], 
-            projected[edge[1]]
-        ]);
-        const line = new THREE.Line(geometry, lineMaterial);
-        hypercube.add(line);
-    });
-    
+    hypercube.add(innerCube);
     scene.add(hypercube);
 }
 
@@ -237,138 +241,119 @@ function createParticles() {
 }
 
 function onMouseMove(event) {
-    if (currentMode !== '3d' || !cube) return;
-    
     const rect = renderer.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObject(cube);
     
-    renderer.domElement.style.cursor = intersects.length > 0 ? 'pointer' : 'grab';
-}
-
-function onTouchStart(event) {
-    if (currentMode !== '3d' || !cube) return;
-    
-    event.preventDefault();
-    
-    const touch = event.touches[0];
-    const rect = renderer.domElement.getBoundingClientRect();
-    
-    mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-}
-
-function onCubeClick(event) {
-    if (currentMode !== '3d' || !cube) return;
-    
-    const rect = renderer.domElement.getBoundingClientRect();
-    
-    // Detectar si es touch o click
-    if (event.type === 'touchend') {
-        if (event.changedTouches.length === 0) return;
-        const touch = event.changedTouches[0];
-        mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-    } else {
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    // Resetear hover anterior
+    if (hoveredFace && hoveredFace !== innerCube) {
+        hoveredFace.material.opacity = hoveredFace.userData.originalOpacity;
+        hoveredFace.material.emissiveIntensity = hoveredFace.userData.originalEmissive;
     }
     
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObject(cube);
+    // Detectar intersecciones
+    const intersects = raycaster.intersectObjects(hypercube.children, true);
     
     if (intersects.length > 0) {
-        const faceIndex = Math.floor(intersects[0].faceIndex / 2);
-        selectRoom(faceIndex);
+        const object = intersects[0].object;
+        
+        if (object.userData.isTartaro) {
+            // Hover sobre el Tártaro
+            isOverCenter = true;
+            innerCube.material.emissiveIntensity = 1.0;
+            innerCube.material.opacity = 0.7;
+            renderer.domElement.style.cursor = 'pointer';
+            
+            // Mostrar mensaje
+            showMessage('Presiona G para acceder al Tártaro');
+        } else if (object.userData.zoneIndex !== undefined) {
+            // Hover sobre una cara
+            isOverCenter = false;
+            hoveredFace = object;
+            object.material.opacity = 0.7;
+            object.material.emissiveIntensity = 0.6;
+            renderer.domElement.style.cursor = 'pointer';
+            
+            const zone = zones[object.userData.zoneIndex];
+            showMessage(`${zone.name} - ${zone.desc}`);
+        }
+    } else {
+        isOverCenter = false;
+        hoveredFace = null;
+        innerCube.material.emissiveIntensity = 0.5;
+        innerCube.material.opacity = 0.4;
+        renderer.domElement.style.cursor = 'grab';
+        hideMessage();
     }
 }
-function selectRoom(faceIndex) {
-    const room = faceToRoom[faceIndex];
-    if (!room) return;
-    
-    const panel = document.getElementById('selected-room-panel');
-    const nameEl = document.getElementById('room-name');
-    const linkEl = document.getElementById('view-room-link');
-    
-    if (panel && nameEl && linkEl) {
-        panel.style.display = 'block';
-        nameEl.textContent = `${room.name} — ${room.desc}`;
-        linkEl.href = room.url;
-        
-        // Efecto visual en la cara
-        if (cube && cube.material[faceIndex]) {
-            const originalIntensity = cube.material[faceIndex].emissiveIntensity;
-            cube.material[faceIndex].emissiveIntensity = 0.7;
-            
-            setTimeout(() => {
-                if (cube && cube.material[faceIndex]) {
-                    cube.material[faceIndex].emissiveIntensity = originalIntensity;
-                }
-            }, 500);
+
+function onHypercubeClick(event) {
+    if (hoveredFace && hoveredFace.userData.zoneIndex !== undefined) {
+        const zone = zones[hoveredFace.userData.zoneIndex];
+        // Mantener la música al navegar
+        window.location.href = zone.url;
+    }
+}
+
+function onKeyDown(event) {
+    if (event.key === 'g' || event.key === 'G') {
+        if (isOverCenter) {
+            // Acceder al Tártaro
+            window.location.href = zones.tartaro.url;
         }
     }
 }
 
-function setCubeMode(mode) {
-    currentMode = mode;
-    
-    const btn3d = document.getElementById('btn3d');
-    const btn4d = document.getElementById('btn4d');
-    
-    if (btn3d) btn3d.classList.remove('active');
-    if (btn4d) btn4d.classList.remove('active');
-    
-    if (mode === '3d') {
-        if (hypercube) scene.remove(hypercube);
-        create3DCube();
-        if (btn3d) btn3d.classList.add('active');
-        if (controls) controls.enabled = true;
-    } else {
-        if (cube) scene.remove(cube);
-        create4DHypercube();
-        if (btn4d) btn4d.classList.add('active');
-        if (controls) controls.enabled = true;
-        
-        const panel = document.getElementById('selected-room-panel');
-        if (panel) panel.style.display = 'none';
+function showMessage(text) {
+    let msg = document.getElementById('zone-message');
+    if (!msg) {
+        msg = document.createElement('div');
+        msg.id = 'zone-message';
+        msg.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            z-index: 1000;
+            border: 2px solid #9C8BA7;
+        `;
+        document.body.appendChild(msg);
     }
+    msg.textContent = text;
+    msg.style.display = 'block';
 }
 
-function toggleRotation() {
-    isRotating = !isRotating;
-    const btn = document.getElementById('pauseBtn');
-    if (btn) {
-        btn.textContent = isRotating ? '⏸️ Pausar' : '▶️ Reanudar';
-    }
-    
-    // Deshabilitar/habilitar autoRotate si existe
-    if (controls) {
-        controls.autoRotate = false;
+function hideMessage() {
+    const msg = document.getElementById('zone-message');
+    if (msg) {
+        msg.style.display = 'none';
     }
 }
 
 function animate() {
     requestAnimationFrame(animate);
     
-    // Rotación automática solo si está activada
-    if (isRotating) {
-        if (cube) {
-            cube.rotation.x += 0.004;
-            cube.rotation.y += 0.006;
-        }
-        if (hypercube) {
-            hypercube.rotation.x += 0.003;
-            hypercube.rotation.y += 0.005;
-            hypercube.rotation.z += 0.002;
-        }
+    // Rotación suave del hipercubo
+    if (hypercube) {
+        hypercube.rotation.x += 0.002;
+        hypercube.rotation.y += 0.003;
     }
     
-    // Actualizar controles si existen
-    controls.update();
+    // Pulsación del cubo interno
+    if (innerCube) {
+        const pulse = Math.sin(Date.now() * 0.002) * 0.05 + 1;
+        innerCube.scale.set(pulse, pulse, pulse);
+    }
     
+    controls.update();
     renderer.render(scene, camera);
 }
 
@@ -381,56 +366,41 @@ function onWindowResize() {
     renderer.setSize(container.clientWidth, container.clientHeight);
 }
 
-// Inicializar cuando el DOM esté listo
+// Funciones de música
+function toggleMusic() {
+    const btn = document.getElementById('musicBtn');
+    
+    if (!audioElement) {
+        audioElement = document.createElement('audio');
+        audioElement.loop = true;
+        audioElement.volume = 0.3;
+        
+        const source = document.createElement('source');
+        source.src = 'still.mp3';
+        source.type = 'audio/mpeg';
+        audioElement.appendChild(source);
+        document.body.appendChild(audioElement);
+    }
+    
+    if (isMusicPlaying) {
+        audioElement.pause();
+        btn.textContent = '🔇'; // Solo emoji
+        isMusicPlaying = false;
+    } else {
+        audioElement.play().catch(err => console.log('Error:', err));
+        btn.textContent = '🔊'; // Solo emoji
+        isMusicPlaying = true;
+    }
+}
+
+// Inicializar
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
     init();
 }
 
-function toggleMusic() {
-    const btn = document.getElementById('musicBtn');
-    
-    if (!audioElement) {
-        // Crear elemento de audio la primera vez
-        audioElement = new Audio();
-        // Aquí pon la URL de tu música (puede ser de tu repositorio o un CDN)
-        audioElement.src = 'ost-disorient.mp3'; // Cambia esto por tu archivo
-        audioElement.loop = true;
-        audioElement.volume = 0.3; // Volumen al 30%
-    }
-    
-    if (isMusicPlaying) {
-        audioElement.pause();
-        btn.textContent = '🔇 Música';
-        isMusicPlaying = false;
-    } else {
-        audioElement.play().catch(err => {
-            console.log('Error al reproducir música:', err);
-        });
-        btn.textContent = '🔊 Música';
-        isMusicPlaying = true;
-    }
-}
-
-// Exponer funciones globalmente para los botones
-window.setCubeMode = setCubeMode;
-window.toggleRotation = toggleRotation;
 window.toggleMusic = toggleMusic;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
