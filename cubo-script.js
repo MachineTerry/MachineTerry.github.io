@@ -135,21 +135,21 @@ function createHypercube() {
     trapezoidMeshes = [];
     
     // Definir vértices del hipercubo en 4D
-    const w = 0.5; // Cuarta dimensión
+    const w = 0.8; // Cuarta dimensión (aumentado para hacer el cubo interno más pequeño)
     const vertices4D = [
-        // Cubo exterior (w = -0.5)
+        // Cubo exterior (w = -0.8)
         [-1,-1,-1,-w], [1,-1,-1,-w], [1,1,-1,-w], [-1,1,-1,-w],
         [-1,-1,1,-w], [1,-1,1,-w], [1,1,1,-w], [-1,1,1,-w],
-        // Cubo interior (w = 0.5)
-        [-1,-1,-1,w], [1,-1,-1,w], [1,1,-1,w], [-1,1,-1,w],
-        [-1,-1,1,w], [1,-1,1,w], [1,1,1,w], [-1,1,1,w]
+        // Cubo interior (w = 0.8) - escalado más pequeño
+        [-0.4,-0.4,-0.4,w], [0.4,-0.4,-0.4,w], [0.4,0.4,-0.4,w], [-0.4,0.4,-0.4,w],
+        [-0.4,-0.4,0.4,w], [0.4,-0.4,0.4,w], [0.4,0.4,0.4,w], [-0.4,0.4,0.4,w]
     ];
     
     // Proyección estereográfica de 4D a 3D
     const projected = vertices4D.map(v => {
-        const distance = 4;
+        const distance = 5;
         const scale = distance / (distance - v[3]);
-        return new THREE.Vector3(v[0] * scale * 1.5, v[1] * scale * 1.5, v[2] * scale * 1.5);
+        return new THREE.Vector3(v[0] * scale * 1.3, v[1] * scale * 1.3, v[2] * scale * 1.3);
     });
     
     // Crear cubo interno (Tártaro) - índices 8-15
